@@ -1,30 +1,28 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <div>数据：{{$store.state.name}}</div>
+  <div>计算属性：{{$store.getters.formatName}}</div>
+  <button @click="update">updateName</button>
 </template>
 
-<style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+<script>
+import { ref } from 'vue'
+import { useStore } from 'vuex'
+export default {
+  name: 'APP',
+  setup () {
+    const store = useStore()
+    const name = ref(store.state.name)
+    const { formatName } = store.getters
+    const update = () => {
+      // store.commit('updateName', '李四')
+      store.dispatch('updateName')
     }
+
+    return { name, formatName, update }
   }
 }
+</script>
+
+<style>
+
 </style>
