@@ -35,7 +35,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-  ],
+, "src/store/modules/catagory, "src/store/modules/cart.js".js", "src/store/modules/user.js", "src/store/modules/catagory.js"  ],
   "exclude": [
     "node_modules"
   ]

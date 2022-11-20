@@ -1,24 +1,22 @@
 <template>
-  <div>数据：{{$store.state.name}}</div>
-  <div>计算属性：{{$store.getters.formatName}}</div>
-  <button @click="update">updateName</button>
+  <div>app</div>
+  <div>{{$store.state.user.profile.id}}</div>
+  <button @click="updateUserInfo" >update</button>
 </template>
 
 <script>
-import { ref } from 'vue'
 import { useStore } from 'vuex'
+import request from '@/utils/request'
 export default {
-  name: 'APP',
   setup () {
     const store = useStore()
-    const name = ref(store.state.name)
-    const { formatName } = store.getters
-    const update = () => {
-      // store.commit('updateName', '李四')
-      store.dispatch('updateName')
+    const updateUserInfo = () => {
+      store.commit('setProfile', {
+        id: '1234'
+      })
     }
-
-    return { name, formatName, update }
+    request('member/profile', 'get')
+    return { updateUserInfo }
   }
 }
 </script>
