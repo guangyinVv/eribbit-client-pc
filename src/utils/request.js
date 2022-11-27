@@ -26,7 +26,7 @@ instance.interceptors.response.use(res => res.data, err => {
     // 3. 跳转需要传参（当前路由地址）给登录页码
     store.commit('user/setUser', {})
     // 对url路径进行转码
-    console.log(1)
+    // fullPath为当前路由地址
     const fullPath = encodeURIComponent(router.currentRoute.value.fullPath)
     router.push('/login?redirectUrl=' + fullPath)
   }

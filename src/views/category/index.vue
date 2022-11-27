@@ -1,5 +1,5 @@
 <template>
-  helloworld
+  category
 </template>
 
 <script>
