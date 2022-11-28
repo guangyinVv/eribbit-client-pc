@@ -1,35 +1,90 @@
 <template>
-  <div class='xtx-carousel'>
+  <div class='xtx-carousel' @mouseenter="stop" @mouseleave="start">
     <ul class="carousel-body">
-      <li class="carousel-item fade">
+      <li class="carousel-item" :class="{ fade: i === index }" v-for="(item, i) in sliders" :key="i">
         <RouterLink to="/">
-          <img
-            src="http://yjy-xiaotuxian-dev.oss-cn-beijing.aliyuncs.com/picture/2021-04-15/1ba86bcc-ae71-42a3-bc3e-37b662f7f07e.jpg"
-            alt="">
+          <img :src="item.imgUrl" alt="">
         </RouterLink>
       </li>
     </ul>
-    <a href="javascript:;" class="carousel-btn prev"><i class="iconfont icon-angle-left"><svg
+    <a @click="toggle(-1)" href="javascript:;" class="carousel-btn prev"><i class="iconfont icon-angle-left"><svg
           xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left"
           viewBox="0 0 16 16">
           <path fill-rule="evenodd"
             d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
         </svg></i></a>
-    <a href="javascript:;" class="carousel-btn next"><i class="iconfont icon-angle-right">
+    <a @click="toggle(1)" href="javascript:;" class="carousel-btn next"><i class="iconfont icon-angle-right">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right"
           viewBox="0 0 16 16">
           <path fill-rule="evenodd"
             d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
         </svg></i></a>
     <div class="carousel-indicator">
-      <span v-for="i in 5" :key="i"></span>
+      <span @click="index=i" :class="{ active: i === index }" v-for="item, i in sliders" :key="i"></span>
     </div>
   </div>
 </template>
 
 <script>
+import { onUnmounted, ref, watch } from 'vue'
+
 export default {
-  name: 'carouselVue'
+  name: 'carouselVue',
+  props: {
+    sliders: {
+      type: Array,
+      default: () => []
+    },
+    autoPlay: {
+      type: Boolean,
+      default: false
+    },
+    duration: {
+      type: Number,
+      default: 3000
+    }
+  },
+  setup (props) {
+    const index = ref(0)
+    let timer = null
+    const autoPlayFn = () => {
+      clearInterval(timer)
+      timer = setInterval(() => {
+        index.value === props.sliders.length - 1 ? index.value = 0 : index.value++
+      }, props.duration)
+    }
+    // 监听sliders数据变化，以便实现自动播放
+    watch(() => props.sliders, (newVal) => {
+      if (newVal.length && props.autoPlay) {
+        autoPlayFn()
+      }
+      // 立即执行
+    }, { immediate: true })
+    // 暂停自动播放
+    const stop = () => {
+      clearInterval(timer)
+    }
+    // 恢复自动播放
+    const start = () => {
+      if (props.sliders.length && props.autoPlay) {
+        autoPlayFn()
+      }
+    }
+    // 切换图片
+    const toggle = (count) => {
+      const temp = index.value + count
+      if (temp <= -1) index.value = props.sliders.length - 1
+      else if (temp >= props.sliders.length) index.value = 0
+      else index.value = temp
+      // console.log(count)
+      // console.log(index.value)
+    }
+    // 销毁组件时清除计时器
+    onUnmounted(() => {
+      clearInterval(timer)
+    })
+    return { index, stop, start, toggle }
+  }
 }
 </script>
 <style scoped lang="less">

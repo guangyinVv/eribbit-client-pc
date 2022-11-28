@@ -1,15 +1,21 @@
 <template>
   <div class="home-banner">
-    <carouselVue />
+    <carouselVue autoPlay :sliders="sliders" />
   </div>
 
 </template>
 
 <script>
-// import carouselVue from '@/components/library/carousel.vue'
+import { findBanner } from '@/api/home'
+import { ref } from 'vue'
+
 export default {
-  components: {
-    // carouselVue
+  setup () {
+    const sliders = ref([])
+    findBanner().then(data => {
+      sliders.value = data.result
+    })
+    return { sliders }
   }
 }
 </script>
@@ -22,5 +28,15 @@ export default {
   top: 0;
   position: absolute;
   z-index: 98;
+
+  .xtx-carousel {
+    ::v-deep .carousel-btn.prev {
+      left: 270px;
+    }
+
+    ::v-deep .carousel-indicator {
+      padding-left: 250px;
+    }
+  }
 }
 </style>

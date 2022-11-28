@@ -5,7 +5,7 @@
       <!-- 左侧分类 -->
       <homeCategoryVue />
       <!-- 轮播图 -->
-      <!-- <homeBannerVue /> -->
+      <homeBannerVue />
     </div>
   </div>
   <!-- 新鲜好物 -->
@@ -14,11 +14,11 @@
 
 <script>
 import homeCategoryVue from './components/home-category.vue'
-// import homeBannerVue from './components/home-banner.vue'
+import homeBannerVue from './components/home-banner.vue'
 export default {
   components: {
-    homeCategoryVue
-    // homeBannerVue
+    homeCategoryVue,
+    homeBannerVue
   }
 }
 </script>

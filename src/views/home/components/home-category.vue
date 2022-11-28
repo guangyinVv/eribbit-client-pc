@@ -4,8 +4,12 @@
       <li :class="{ active: currCategory && currCategory.id === item.id }" v-for="item in menuList" :key="item.id"
         @mouseenter="currCategory = item;">
         <RouterLink :to="`/category/${item.id}`">{{ item.name }}</RouterLink>
-        <template v-for="sub in item.children" :key="sub.id">
-          <RouterLink :to="`/category/${sub.id}`">{{ sub.name }}</RouterLink>
+        <template v-if="item.children">
+          <RouterLink v-for="sub in item.children" :key="sub.id" :to="`/category/${sub.id}`">{{ sub.name }}</RouterLink>
+        </template>
+        <template v-else>
+          <XtxSkeleton width="60px" height="18px" style="margin-right:5px" bg="rgba(255,255,255,.2)" />
+          <XtxSkeleton width="60px" height="18px" bg="rgba(255,255,255,.2)" />
         </template>
       </li>
     </ul>
@@ -26,7 +30,7 @@
         </li>
       </ul>
       <!-- 品牌 -->
-      <ul v-if="currCategory && currCategory.brands">
+      <ul v-else-if="currCategory && currCategory.brands">
         <li class="brand" v-for="item in currCategory.brands" :key="item.id">
           <RouterLink to="/">
             <img :src="item.picture" alt="">
@@ -47,6 +51,7 @@
 import { reactive, computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { findBrand } from '@/api/home'
+import XtxSkeleton from '@/components/library/xtx-skeleton.vue'
 export default {
   name: 'HomeCategory',
   setup () {
@@ -55,7 +60,8 @@ export default {
       id: 'brand',
       name: '品牌',
       children: [{
-        id: 'brand-children', name: '品牌推荐'
+        id: 'brand-children',
+        name: '品牌推荐'
       }],
       // 品牌的多个内容
       brands: []
@@ -75,12 +81,12 @@ export default {
     // 得到弹出层的推荐列表数据
     const categoryId = ref(null)
     const currCategory = ref(null)
-
     findBrand().then(data => {
       brand.brands = data.result
     })
     return { menuList, categoryId, currCategory }
-  }
+  },
+  components: { XtxSkeleton }
 }
 </script>
 
@@ -222,6 +228,20 @@ export default {
   &:hover {
     .layer {
       display: block;
+    }
+  }
+
+  .xtx-skeleton {
+    animation: fade 1s linear infinite alternate;
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0.2;
+    }
+
+    to {
+      opacity: 1;
     }
   }
 }
