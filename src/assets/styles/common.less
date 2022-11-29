@@ -103,3 +103,19 @@ h5,
 h6 {
   margin: 0;
 }
+
+// transition组件的过渡动画
+.fade {
+  &-leave {
+    &-active {
+      position: absolute;
+      width: 100%;
+      transition: opacity .5s .2s;
+      z-index: 1;
+    }
+
+    &-to {
+      opacity: 0;
+    }
+  }
+}
