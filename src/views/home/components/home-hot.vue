@@ -5,7 +5,7 @@
         <ul v-if="goods.length" ref="pannel" class="goods-list">
           <li v-for="item in goods" :key="item.id">
             <RouterLink to="/">
-              <img :src="item.picture" alt="">
+              <img v-lazyload="item.picture" alt="">
               <p class="name">{{ item.title }}</p>
               <p class="desc">{{ item.alt }}</p>
             </RouterLink>
@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+// import { ref } from 'vue'
 import HomePanel from './home-panel'
 import { findHot } from '@/api/home'
 import HomeSkeleton from './home-skeleton.vue'
@@ -27,9 +27,9 @@ export default {
   name: 'HomeNew',
   components: { HomePanel, HomeSkeleton },
   setup () {
-    const target = ref(null)
+    // const target = ref(null)
     // const goods = ref([])
-    const result = useLazyData(target, findHot)
+    const { target, result } = useLazyData(findHot)
     // findHot().then(data => {
     //   goods.value = data.result
     // })
