@@ -1,12 +1,20 @@
-import carousel from './carousel.vue'
-import xtxSkeleton from './xtx-skeleton.vue'
-import moreVue from './more.vue'
 import defaultImg from '@/assets/images/200.png'
+// context(目录路径,是否加载子目录,加载文件的正则规则)
+const importFn = require.context('./', false, /\.vue$/)
 export default {
   install (app) {
-    app.component(carousel.name, carousel)
-    app.component(xtxSkeleton.name, xtxSkeleton)
-    app.component(moreVue.name, moreVue)
+    // 根据keys批量注册
+    importFn.keys().forEach(path => {
+      const component = importFn(path).default
+      app.component(component.name, component)
+    })
+    // app.component(carousel.name, carousel)
+    // app.component(xtxSkeleton.name, xtxSkeleton)
+    // app.component(moreVue.name, moreVue)
+    // app.component(XtxBread.name, XtxBread)
+    // app.component(XtxBreadItem.name, XtxBreadItem)
+
+    // 定义图片懒加载指令
     defineDirective(app)
   }
 }

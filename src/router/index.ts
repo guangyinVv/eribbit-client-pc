@@ -20,7 +20,11 @@ const routes: Array<RouteRecordRaw> = [
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes
+  routes,
+  // 控制路由跳转时网页移动到最顶端
+  scrollBehavior() {
+    return { top: 0 }
+  }
 })
 
 export default router

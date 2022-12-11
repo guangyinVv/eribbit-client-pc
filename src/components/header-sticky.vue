@@ -1,6 +1,6 @@
 <template>
+  <!-- 吸顶组件 -->
   <div class="app-header-sticky" :class="{ show: y > 78 }">
-    <!-- 吸顶组件 -->
     <div class="container" v-show="y > 78">
       <router-link class="logo" to="/" />
       <headerNavVue />
