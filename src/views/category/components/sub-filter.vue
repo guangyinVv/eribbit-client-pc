@@ -15,9 +15,7 @@
       <div v-if="filterData" class="body">
         <!-- <a href="javascript:;">全部</a> -->
         <a @click="i.selectedProp = item.id" :class="{ active: item.id === i.selectedProp }" href="javascript:;"
-          v-for="item in i.properties" :key="item.id">{{
-    item.name
-          }}</a>
+          v-for="item in i.properties" :key="item.id">{{ item.name }}</a>
       </div>
     </div>
   </div>

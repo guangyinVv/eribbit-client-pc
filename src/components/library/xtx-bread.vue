@@ -5,7 +5,7 @@
 </template> -->
 
 <script lang="ts">
-import { h, RendererElement, RendererNode, Slot, VNode } from 'vue'
+import { h, Slot } from 'vue'
 
 export default {
   name: 'XtxBread',
