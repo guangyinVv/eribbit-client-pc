@@ -1,26 +1,31 @@
 <template>
-  <div class='xtx-carousel' @mouseenter="stop" @mouseleave="start">
+  <div class="xtx-carousel" @mouseenter="stop" @mouseleave="start">
     <ul class="carousel-body">
       <li class="carousel-item" :class="{ fade: i === index }" v-for="(item, i) in sliders" :key="i">
-        <RouterLink to="/">
-          <img :src="item.imgUrl" alt="">
+        <RouterLink v-if="item.imgUrl" to="/">
+          <img :src="item.imgUrl" alt="" />
         </RouterLink>
+        <div v-else class="slider">
+          <RouterLink v-for="goods in item" :key="goods.id" :to="`/product/${goods.id}`">
+            <img :src="goods.picture" alt="" />
+            <p class="name ellipsis">{{ goods.name }}</p>
+            <p class="price">&yen;{{ goods.price }}</p>
+          </RouterLink>
+        </div>
       </li>
     </ul>
-    <a @click="toggle(-1)" href="javascript:;" class="carousel-btn prev"><i class="iconfont icon-angle-left"><svg
-          xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left"
-          viewBox="0 0 16 16">
-          <path fill-rule="evenodd"
-            d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
-        </svg></i></a>
-    <a @click="toggle(1)" href="javascript:;" class="carousel-btn next"><i class="iconfont icon-angle-right">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right"
-          viewBox="0 0 16 16">
-          <path fill-rule="evenodd"
-            d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
-        </svg></i></a>
+    <a @click="toggle(-1)" href="javascript:;" class="carousel-btn prev"
+      ><i class="iconfont icon-angle-left"
+        ><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" /></svg></i
+    ></a>
+    <a @click="toggle(1)" href="javascript:;" class="carousel-btn next"
+      ><i class="iconfont icon-angle-right">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" /></svg></i
+    ></a>
     <div class="carousel-indicator">
-      <span @click="index=i" :class="{ active: i === index }" v-for="item, i in sliders" :key="i"></span>
+      <span @click="index = i" :class="{ active: i === index }" v-for="(item, i) in sliders" :key="i"></span>
     </div>
   </div>
 </template>
@@ -44,22 +49,26 @@ export default {
       default: 3000
     }
   },
-  setup (props) {
+  setup(props) {
     const index = ref(0)
     let timer = null
     const autoPlayFn = () => {
       clearInterval(timer)
       timer = setInterval(() => {
-        index.value === props.sliders.length - 1 ? index.value = 0 : index.value++
+        index.value === props.sliders.length - 1 ? (index.value = 0) : index.value++
       }, props.duration)
     }
     // 监听sliders数据变化，以便实现自动播放
-    watch(() => props.sliders, (newVal) => {
-      if (newVal.length && props.autoPlay) {
-        autoPlayFn()
-      }
-      // 立即执行
-    }, { immediate: true })
+    watch(
+      () => props.sliders,
+      (newVal) => {
+        if (newVal.length && props.autoPlay) {
+          autoPlayFn()
+        }
+        // 立即执行
+      },
+      { immediate: true }
+    )
     // 暂停自动播放
     const stop = () => {
       clearInterval(timer)
@@ -137,7 +146,7 @@ export default {
         border-radius: 50%;
         cursor: pointer;
 
-        ~span {
+        ~ span {
           margin-left: 12px;
         }
 
@@ -150,7 +159,7 @@ export default {
     &-btn {
       width: 44px;
       height: 44px;
-      background: rgba(0, 0, 0, .2);
+      background: rgba(0, 0, 0, 0.2);
       color: #fff;
       border-radius: 50%;
       position: absolute;
@@ -168,12 +177,41 @@ export default {
       &.next {
         right: 20px;
       }
+      svg {
+        width: 16px;
+        height: 16px;
+      }
     }
   }
 
   &:hover {
     .carousel-btn {
       opacity: 1;
+    }
+  }
+}
+// 轮播商品
+.slider {
+  display: flex;
+  justify-content: space-around;
+  padding: 0 40px;
+  > a {
+    width: 240px;
+    text-align: center;
+    img {
+      padding: 20px;
+      width: 230px !important;
+      height: 230px !important;
+    }
+    .name {
+      font-size: 16px;
+      color: #666;
+      padding: 0 40px;
+    }
+    .price {
+      font-size: 16px;
+      color: @priceColor;
+      margin-top: 15px;
     }
   }
 }

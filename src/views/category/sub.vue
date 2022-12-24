@@ -74,8 +74,8 @@ export default {
 }
 </script>
 
-<style lang="less">
-.goods-list /deep/ {
+<style lang="less" scoped>
+.goods-list {
   background: #fff;
   padding: 0 25px;
   margin-top: 25px;

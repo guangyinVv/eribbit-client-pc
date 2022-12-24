@@ -3,6 +3,7 @@ import home from '@/views/home/index.vue'
 import Layout from '@/views/layout.vue'
 import topCategory from '@/views/category/index.vue'
 import subCategory from '@/views/category/sub.vue'
+import Goods from '@/views/goods/index.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -13,7 +14,8 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       { path: '/', component: home },
       { path: '/category/:id', component: topCategory },
-      { path: '/category/sub/:id', component: subCategory }
+      { path: '/category/sub/:id', component: subCategory },
+      { path: '/product/:id', component: Goods }
     ]
   }
 ]
