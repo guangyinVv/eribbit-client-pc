@@ -1,15 +1,16 @@
-
 <template>
   <!-- 顶部组件 -->
   <nav>
     <div class="container">
       <ul>
         <template v-if="profile.token">
-          <li><a href="javascript:;">{{ profile.nickname }}</a></li>
+          <li>
+            <a href="javascript:;">{{ profile.nickname }}</a>
+          </li>
           <li><a href="javascript:;">退出登录</a></li>
         </template>
         <template v-else>
-          <li><a href="javascript:;">请先登录</a></li>
+          <li><RouterLink to="/login">请先登录</RouterLink></li>
           <li><a href="javascript:;">免费注册</a></li>
         </template>
         <li><a href="javascript:;">我的订单</a></li>
@@ -26,7 +27,7 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 export default {
-  setup () {
+  setup() {
     const store = useStore()
     const profile = computed(() => {
       return store.state.user.profile
@@ -68,7 +69,7 @@ nav {
         }
       }
 
-      ~li {
+      ~ li {
         a {
           border-left: 2px solid #666;
         }
@@ -76,4 +77,5 @@ nav {
     }
   }
 }
-</style>>
+</style>
+>

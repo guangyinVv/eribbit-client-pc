@@ -30,7 +30,6 @@ export default {
         const sliderDataArray = data.result.slice(pageSize * i, pageSize * (i + 1))
         sliders.value.push(sliderDataArray)
       }
-      console.log(sliders.value)
     })
     return { sliders }
   }
