@@ -30,7 +30,7 @@ export default {
   },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  setup(props: PropsType) {
+  setup(_props: PropsType) {
     const currImage: Ref<string | null> = ref(null)
     const exitPreview = () => {
       currImage.value = null

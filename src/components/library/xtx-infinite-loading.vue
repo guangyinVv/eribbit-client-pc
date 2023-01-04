@@ -37,7 +37,7 @@ export default {
     const target = ref(null)
     const { stop } = useIntersectionObserver(
       target,
-      ([{ isIntersecting }], observerElement) => {
+      ([{ isIntersecting }]) => {
         if (isIntersecting) {
           // 这里表示进入了可视区
           if (!props.loading) {

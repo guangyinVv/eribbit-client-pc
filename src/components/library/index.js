@@ -1,4 +1,6 @@
 import defaultImg from '@/assets/images/200.png'
+import Message from './Message'
+
 // context(目录路径,是否加载子目录,加载文件的正则规则)
 const importFn = require.context('./', false, /\.vue$/)
 export default {
@@ -8,14 +10,12 @@ export default {
       const component = importFn(path).default
       app.component(component.name, component)
     })
-    // app.component(carousel.name, carousel)
-    // app.component(xtxSkeleton.name, xtxSkeleton)
-    // app.component(moreVue.name, moreVue)
-    // app.component(XtxBread.name, XtxBread)
-    // app.component(XtxBreadItem.name, XtxBreadItem)
 
     // 定义图片懒加载指令
     defineDirective(app)
+
+    // 全局挂载$message
+    app.config.globalProperties.$message = Message
   }
 }
 const defineDirective = (app) => {

@@ -10,7 +10,7 @@
 </template>
 <script lang="ts">
 import { useVModel } from '@vueuse/core'
-interface Props {
+interface PropsType {
   label: string
   modelValue: number
   min: number
@@ -36,7 +36,7 @@ export default {
       default: null
     }
   },
-  setup(props: { label: string; modelValue: number; min: number; max: number | null }, { emit }: { emit: (event: string, ...args: any[]) => void }) {
+  setup(props: PropsType, { emit }: { emit: (event: string, ...args: any[]) => void }) {
     const count = useVModel(props, 'modelValue', emit)
     const changeNum = (step: number) => {
       const newVal = count.value + step

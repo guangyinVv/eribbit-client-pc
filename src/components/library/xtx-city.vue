@@ -145,7 +145,7 @@ export default {
 // 3. 怎么使用数据？定义计算属性，根据点击的省份城市展示
 const getCityData = () => {
   // 这个位置可能有异常操作，封装成promise
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (window.cityData) {
       // 有缓存
       resolve(window.cityData)

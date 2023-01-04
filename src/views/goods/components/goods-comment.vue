@@ -142,7 +142,7 @@ export default {
     // 监听reqParams数据变化，一变化就更新评论列表
     watch(
       reqParams,
-      (newValue, oldValue) => {
+      () => {
         findGoodsCommentList(route.params.id, reqParams).then((data: any) => {
           commentList.value = data.result.items
           pageCount.value = Math.ceil(data.result.counts / reqParams.pagesize)

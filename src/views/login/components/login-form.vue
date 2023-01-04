@@ -1,10 +1,11 @@
 <template>
   <div class="account-box">
     <div class="toggle">
-      <a @click="isMsgLogin = false" href="javascript:;" v-if="isMsgLogin"> <i class="iconfont icon-user"></i> 使用账号登录 </a>
-      <a @click="isMsgLogin = true" href="javascript:;" v-else> <i class="iconfont icon-msg"></i> 使用短信登录 </a>
+      <a @click="changeMode(true)" href="javascript:;" v-if="!isMsgLogin"> <i class="iconfont icon-user"></i> 使用短信登录 </a>
+      <a @click="changeMode(false)" href="javascript:;" v-else> <i class="iconfont icon-msg"></i> 使用账号登录 </a>
     </div>
-    <v-form class="form" :validation-schema="schema" v-slot="{ errors }">
+    <!-- <v-form ref="target" class="form" :validation-schema="schema" v-slot="{ errors }"> -->
+    <v-form ref="target" class="form" v-slot="{ errors }">
       <template v-if="!isMsgLogin">
         <div class="form-item">
           <div class="input">
@@ -13,7 +14,7 @@
                 <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
               </svg>
             </i>
-            <v-field :class="{ error: errors.account }" v-model="form.account" name="account" type="text" placeholder="请输入用户名" />
+            <v-field :rules="schema.account" :class="{ error: errors.account }" v-model="form.account" name="account" type="text" placeholder="请输入用户名" />
             <!-- <ErrorMessage name="account" /> -->
           </div>
           <div v-if="errors.account" class="error">
@@ -32,7 +33,7 @@
                 <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
               </svg>
             </i>
-            <v-field :class="{ error: errors.password }" v-model="form.password" name="password" type="password" placeholder="请输入密码" />
+            <v-field :rules="schema.password" :class="{ error: errors.password }" v-model="form.password" name="password" type="password" placeholder="请输入密码" />
           </div>
           <div v-if="errors.password" class="error">
             <i class="iconfont icon-warning">
@@ -52,7 +53,15 @@
                 <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
               </svg>
             </i>
-            <v-field v-model="form.mobile" name="mobile" type="text" placeholder="请输入手机号" />
+            <v-field :rules="schema.mobile" :class="{ error: errors.mobile }" v-model="form.mobile" name="mobile" type="text" placeholder="请输入手机号" />
+          </div>
+          <div v-if="errors.mobile" class="error">
+            <i class="iconfont icon-warning">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+              </svg>
+            </i>
+            {{ errors.mobile }}
           </div>
         </div>
         <div class="form-item">
@@ -65,34 +74,59 @@
                 <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
               </svg>
             </i>
-            <v-field v-model="form.code" name="code" type="password" placeholder="请输入验证码" />
-            <span class="code">发送验证码</span>
+            <v-field :rules="schema.code" :class="{ error: errors.code }" v-model="form.code" name="code" type="text" placeholder="请输入验证码" />
+            <span @click="sendMsg" class="code">{{ restTime > 0 ? restTime + '秒后发送' : '发送验证码' }}</span>
+          </div>
+          <div v-if="errors.code" class="error">
+            <i class="iconfont icon-warning">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+              </svg>
+            </i>
+            {{ errors.code }}
           </div>
         </div>
       </template>
       <div class="form-item">
         <div class="agree">
-          <XtxCheckbox v-model="form.isAgree" />
+          <v-field :rules="schema.isAgree" as="XtxCheckbox" name="isAgree" v-model="form.isAgree" />
           <span>我已同意</span>
           <a href="javascript:;">《隐私条款》</a>
           <span>和</span>
           <a href="javascript:;">《服务条款》</a>
         </div>
+        <div v-if="errors.isAgree" class="error">
+          <i class="iconfont icon-warning">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+            </svg>
+          </i>
+          {{ errors.isAgree }}
+        </div>
       </div>
-      <a href="javascript:;" class="btn">登录</a>
+      <a @click="login" href="javascript:;" class="btn">登录</a>
     </v-form>
     <div class="action">
-      <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="" />
+      <!-- <span id="qqLoginBtn"></span> -->
+      <a href="https://graph.qq.com/oauth2.0/authorize?client_id=100556005&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fwww.corho.com%3A8080%2F%23%2Flogin%2Fcallback">
+        <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="" />
+      </a>
       <div class="url">
         <a href="javascript:;">忘记密码</a>
         <a href="javascript:;">免费注册</a>
       </div>
     </div>
   </div>
+  <!-- <XtxMessage text="手机号或密码错误" type="error" /> -->
 </template>
 <script lang="ts">
-import { reactive, ref } from 'vue'
+import Message from '@/components/library/Message'
+import { reactive, ref, onUnmounted } from 'vue'
 import { Form as VForm, Field as VField, ErrorMessage } from 'vee-validate'
+import schemaFunc from '@/utils/vee-validate-schema'
+import { userAccountLogin, userMobileLogin, userMobileLoginMsg } from '@/api/user'
+import store from '@/store'
+import { useRoute, useRouter } from 'vue-router'
 export default {
   name: 'LoginForm',
   components: { VForm, VField },
@@ -101,14 +135,14 @@ export default {
     const isMsgLogin = ref(false)
     // 表单信息对象
     type FormType = {
-      isAgree: boolean
-      account: null | string
-      password: null | string
-      mobile: null | string
-      code: null | string
+      isAgree?: boolean
+      account?: null | string
+      password?: null | string
+      mobile?: null | string
+      code?: null | string
     }
     const form: FormType = reactive({
-      isAgree: true,
+      isAgree: false,
       account: null,
       password: null,
       mobile: null,
@@ -116,16 +150,103 @@ export default {
     })
     const schema = {
       // 校验函数规则：返回true表示成功，返回字符串表示错误信息
-      account(value: string | null) {
-        if (!value) return '请输入用户名'
-        return true
-      },
-      password(value: string | null) {
-        if (!value) return '请输入密码'
-        return true
+      account: schemaFunc.account,
+      password: schemaFunc.password,
+      mobile: schemaFunc.mobile,
+      code: schemaFunc.code,
+      isAgree: schemaFunc.isAgree
+    }
+    // Form组件的实例
+    const target: any = ref(null)
+    // 切换短信登录和密码登录
+    const changeMode = (flag: boolean) => {
+      if (flag === isMsgLogin.value) return
+      isMsgLogin.value = flag
+      const tempCode = form.isAgree
+      target.value.validate().then(() => {
+        form.isAgree = tempCode
+        form.account = ''
+        form.password = ''
+        form.mobile = ''
+        form.code = ''
+      })
+    }
+    // 判断一下验证码是否已发送
+    const checkCode = ref(false)
+    // 下次可发送验证码的时间
+    const restTime = ref(-1)
+    let timer: any = null
+    // 发送短信验证码
+    const sendMsg = async () => {
+      // 如果时间没到，不能发
+      if (restTime.value > 0) return
+      const { mobile } = form
+      if (mobile) {
+        try {
+          const data: any = await userMobileLoginMsg(mobile)
+          if (data.code === '1') {
+            // 验证码发送成功
+            checkCode.value = true
+            restTime.value = 60
+            timer = setInterval(() => {
+              restTime.value--
+            }, 1000)
+          } else {
+            checkCode.value = false
+          }
+        } catch (e: any) {
+          if (e.response && e.response.data) {
+            Message({ type: 'error', text: e.response.data.message || '发送验证码失败' })
+          }
+          checkCode.value = false
+        }
       }
     }
-    return { isMsgLogin, form, schema }
+    const router = useRouter()
+    const route = useRoute()
+    const login = async () => {
+      // target.value.resetForm()
+      // 在登录前先进行表单校验
+      const { valid }: { valid: boolean } = await target.value.validate()
+      if (!valid) return
+      // 表单校验成功，可以继续执行操作
+      // 分为账号密码登录和短信验证码登录
+      let data: any
+      try {
+        if (isMsgLogin.value) {
+          // 如果未发送验证码
+          if (!checkCode.value) {
+            Message({ type: 'warn', text: '还未发送验证码' })
+            return
+          }
+          const { mobile, code } = form
+          if (mobile && code) {
+            data = await userMobileLogin(mobile, code)
+          }
+        } else {
+          const { account: account1, password: password1 } = form
+          if (account1 && password1) {
+            data = await userAccountLogin(account1, password1)
+          }
+        }
+      } catch (e: any) {
+        if (e.response && e.response.data) {
+          Message({ type: 'error', text: e.response.data.message || '登录失败' })
+        }
+      }
+      if (data) {
+        const { id, account, avatar, mobile, nickname, token } = data.result
+        store.commit('setUser', { id, account, avatar, mobile, nickname, token })
+        // 进行跳转
+        const redirectUrl: any = route.query.redirectUrl
+        router.push(redirectUrl || '/')
+        Message({ type: 'success', text: '登录成功' })
+      }
+    }
+    onUnmounted(() => {
+      clearInterval(timer)
+    })
+    return { isMsgLogin, form, schema, changeMode, target, login, sendMsg, restTime }
   }
 }
 </script>

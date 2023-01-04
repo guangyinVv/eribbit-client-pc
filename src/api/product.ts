@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { AxiosResponse } from 'axios'
 /**
  * 获取商品详情
  * @param {String} id -商品id

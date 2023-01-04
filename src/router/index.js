@@ -1,10 +1,11 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import home from '@/views/home/index.vue'
 import Layout from '@/views/layout.vue'
 import topCategory from '@/views/category/index.vue'
 import subCategory from '@/views/category/sub.vue'
 import Goods from '@/views/goods/index.vue'
 import Login from '@/views/login/index.vue'
+import LoginCallback from '@/views/login/callback.vue'
 
 const routes = [
   {
@@ -23,6 +24,11 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login
+  },
+  {
+    path: '/login/callback',
+    name: 'LoginCallback',
+    component: LoginCallback
   }
 ]
 
