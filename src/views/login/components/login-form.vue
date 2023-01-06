@@ -121,12 +121,13 @@
 </template>
 <script lang="ts">
 import Message from '@/components/library/Message'
-import { reactive, ref, onUnmounted } from 'vue'
-import { Form as VForm, Field as VField, ErrorMessage } from 'vee-validate'
+import { reactive, ref } from 'vue'
+import { Form as VForm, Field as VField } from 'vee-validate'
 import schemaFunc from '@/utils/vee-validate-schema'
 import { userAccountLogin, userMobileLogin, userMobileLoginMsg } from '@/api/user'
 import store from '@/store'
 import { useRoute, useRouter } from 'vue-router'
+import sendCodeDelay from '@/utils/sendCode'
 export default {
   name: 'LoginForm',
   components: { VForm, VField },
@@ -160,48 +161,20 @@ export default {
     const target: any = ref(null)
     // 切换短信登录和密码登录
     const changeMode = (flag: boolean) => {
+      const a = target.value.resetForm()
       if (flag === isMsgLogin.value) return
       isMsgLogin.value = flag
       const tempCode = form.isAgree
-      target.value.validate().then(() => {
-        form.isAgree = tempCode
-        form.account = ''
-        form.password = ''
-        form.mobile = ''
-        form.code = ''
-      })
+      // target.value.validate().then(() => {
+      form.isAgree = tempCode
+      form.account = ''
+      form.password = ''
+      form.mobile = ''
+      form.code = ''
+      // })
     }
-    // 判断一下验证码是否已发送
-    const checkCode = ref(false)
-    // 下次可发送验证码的时间
-    const restTime = ref(-1)
-    let timer: any = null
-    // 发送短信验证码
-    const sendMsg = async () => {
-      // 如果时间没到，不能发
-      if (restTime.value > 0) return
-      const { mobile } = form
-      if (mobile) {
-        try {
-          const data: any = await userMobileLoginMsg(mobile)
-          if (data.code === '1') {
-            // 验证码发送成功
-            checkCode.value = true
-            restTime.value = 60
-            timer = setInterval(() => {
-              restTime.value--
-            }, 1000)
-          } else {
-            checkCode.value = false
-          }
-        } catch (e: any) {
-          if (e.response && e.response.data) {
-            Message({ type: 'error', text: e.response.data.message || '发送验证码失败' })
-          }
-          checkCode.value = false
-        }
-      }
-    }
+
+    const { restTime, sendMsg, checkCode } = sendCodeDelay(form, userMobileLoginMsg, target, '发送验证码失败')
     const router = useRouter()
     const route = useRoute()
     const login = async () => {
@@ -243,9 +216,6 @@ export default {
         Message({ type: 'success', text: '登录成功' })
       }
     }
-    onUnmounted(() => {
-      clearInterval(timer)
-    })
     return { isMsgLogin, form, schema, changeMode, target, login, sendMsg, restTime }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="xtx-form">
+  <Form ref="target" class="xtx-form" :validationSchema="mySchema" v-slot="{ errors }">
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-user">
@@ -7,9 +7,11 @@
             <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
           </svg>
         </i>
-        <input class="input" type="text" placeholder="请输入用户名" />
+        <Field v-model="form['account']" name="account" class="input" type="text" placeholder="请输入用户名" />
       </div>
-      <div class="error"></div>
+      <div v-if="errors.account" class="error">
+        {{ errors.account }}
+      </div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
@@ -19,9 +21,11 @@
             <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
           </svg>
         </i>
-        <input class="input" type="text" placeholder="请输入手机号" />
+        <Field v-model="form['mobile']" name="mobile" class="input" type="text" placeholder="请输入手机号" />
       </div>
-      <div class="error"></div>
+      <div v-if="errors.mobile" class="error">
+        {{ errors.mobile }}
+      </div>
     </div>
     <div class="xtx-form-item">
       <div class="field checkCodeField">
@@ -33,10 +37,12 @@
             <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
           </svg>
         </i>
-        <input class="input" type="text" placeholder="请输入验证码" />
-        <span class="code">发送验证码</span>
+        <Field v-model="form['code']" name="code" class="input" type="text" placeholder="请输入验证码" />
+        <span @click="sendMsg" class="code">{{ restTime > 0 ? restTime + '秒后发送' : '发送验证码' }}</span>
       </div>
-      <div class="error"></div>
+      <div v-if="errors.code" class="error">
+        {{ errors.code }}
+      </div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
@@ -45,9 +51,11 @@
             <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
           </svg>
         </i>
-        <input class="input" type="password" placeholder="请输入密码" />
+        <Field v-model="form['password']" name="password" class="input" type="password" placeholder="请输入密码" />
       </div>
-      <div class="error"></div>
+      <div v-if="errors.password" class="error">
+        {{ errors.password }}
+      </div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
@@ -56,17 +64,86 @@
             <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
           </svg>
         </i>
-        <input class="input" type="password" placeholder="请确认密码" />
+        <Field v-model="form['rePassword']" name="rePassword" class="input" type="password" placeholder="请确认密码" />
       </div>
-      <div class="error"></div>
+      <div v-if="errors.rePassword" class="error">
+        {{ errors.rePassword }}
+      </div>
     </div>
-    <a href="javascript:;" class="submit">立即提交</a>
-  </div>
+    <a @click="submit" href="javascript:;" class="submit">立即提交</a>
+  </Form>
 </template>
 
-<script>
+<script lang="ts">
+import { Field, Form } from 'vee-validate'
+import { reactive, ref } from 'vue'
+import schema from '@/utils/vee-validate-schema'
+import { userQQPatchCode, userQQPatchLogin } from '@/api/user'
+import sendCodeDelay from '@/utils/sendCode'
+import Message from '@/components/library/Message'
+import store from '@/store'
+import { useRouter } from 'vue-router'
+type PropsType = {
+  unionId: string
+}
 export default {
-  name: 'CallbackPatch'
+  name: 'CallbackPatch',
+  components: { Field, Form },
+  props: {
+    unionId: {
+      type: String
+    }
+  },
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  setup(props: PropsType) {
+    const form = reactive({
+      account: '',
+      mobile: '',
+      code: '',
+      password: '',
+      rePassword: ''
+    })
+    const mySchema = {
+      account: schema.accountApi,
+      mobile: schema.mobile,
+      code: schema.code,
+      password: schema.password,
+      rePassword: schema.rePassword
+    }
+    const target: any = ref(null)
+    const { restTime, sendMsg, checkCode } = sendCodeDelay(form, userQQPatchCode, target)
+    const router = useRouter()
+    const submit = async () => {
+      // 如果还未发送验证码，则直接返回
+      if (!checkCode.value) {
+        Message({ type: 'warn', text: '还未发送验证码' })
+        return
+      }
+      const { valid } = await target.value.validate()
+      if (valid) {
+        userQQPatchLogin({
+          unionId: props.unionId,
+          // mobile: form.mobile,
+          // code: form.code
+          ...form
+        })
+          .then((data: any) => {
+            const { id, account, avatar, mobile, nickname, token } = data.result
+            store.commit('setUser', { id, account, avatar, mobile, nickname, token })
+            router.push(store.state.user.redirectUrl)
+            Message({ type: 'success', text: 'QQ登录成功' })
+          })
+          .catch((e: any) => {
+            console.log(e)
+            if (e.response && e.response.data) {
+              Message({ type: 'error', text: e.response.data.message || '完善信息失败' })
+            }
+          })
+      }
+    }
+    return { form, mySchema, restTime, sendMsg, target, submit }
+  }
 }
 </script>
 

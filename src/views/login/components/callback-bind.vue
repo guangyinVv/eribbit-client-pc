@@ -1,8 +1,8 @@
 <template>
-  <div class="xtx-form">
-    <div class="user-info">
-      <img src="http://qzapp.qlogo.cn/qzapp/101941968/57C7969540F9D3532451374AA127EE5B/50" alt="" />
-      <p>Hi，Tom 欢迎来小兔鲜，完成绑定后可以QQ账号一键登录哦~</p>
+  <Form ref="target" :validationSchema="schema" v-slot="{ errors }" class="xtx-form">
+    <div v-if="avatar" class="user-info">
+      <img :src="avatar" alt="" />
+      <p>Hi，{{ nickname }} 欢迎来小兔鲜，完成绑定后可以QQ账号一键登录哦~</p>
     </div>
     <div class="xtx-form-item">
       <div class="field">
@@ -12,9 +12,11 @@
             <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
           </svg>
         </i>
-        <input class="input" type="text" placeholder="绑定的手机号" />
+        <Field :class="{ err: errors.mobile }" v-model="form['mobile']" name="mobile" class="input" type="text" placeholder="绑定的手机号" />
       </div>
-      <div class="error"></div>
+      <div v-if="errors.mobile" class="error">
+        {{ errors.mobile }}
+      </div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
@@ -26,18 +28,103 @@
             <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
           </svg>
         </i>
-        <input class="input" type="text" placeholder="短信验证码" />
-        <span class="code">发送验证码</span>
+        <Field :class="{ err: errors.code }" v-model="form['code']" name="code" class="input" type="text" placeholder="短信验证码" />
+        <span @click="sendMsg" class="code">{{ restTime <= 0 ? '发送验证码' : restTime + '秒后发送' }}</span>
       </div>
-      <div class="error"></div>
+      <div v-if="errors.code" class="error">
+        {{ errors.code }}
+      </div>
     </div>
-    <a href="javascript:;" class="submit">立即绑定</a>
-  </div>
+    <a @click="submit" href="javascript:;" class="submit">立即绑定</a>
+  </Form>
 </template>
 
-<script>
+<script lang="ts">
+import { reactive, Ref, ref, onUnmounted } from 'vue'
+import { Field, Form } from 'vee-validate'
+import mySchema from '@/utils/vee-validate-schema'
+import { userQQBindLogin, userQQBindCode } from '@/api/user'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import QC from 'qc'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+import Message from '@/components/library/Message'
+import sendCodeDelay from '@/utils/sendCode'
+type PropsType = {
+  unionId: string
+}
 export default {
-  name: 'CallbackBind'
+  name: 'CallbackBind',
+  components: {
+    Form,
+    Field
+  },
+  props: {
+    unionId: {
+      type: String
+    }
+  },
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  setup(props: PropsType) {
+    const nickname: Ref<string | null> = ref(null)
+    const avatar: Ref<string | null> = ref(null)
+    if (QC.Login.check()) {
+      QC.api('get_user_info').success((res: any) => {
+        avatar.value = res.data.figureurl_qq_1 as string
+        nickname.value = res.data.nickname
+      })
+    }
+    type formType = {
+      mobile: string
+      code: string
+    }
+    const form: formType = reactive({
+      mobile: '',
+      code: ''
+    })
+    const schema = {
+      mobile: mySchema.mobile,
+      code: mySchema.code
+    }
+    const target: Ref<any> = ref(null)
+    const store = useStore()
+    const router = useRouter()
+
+    // 发送验证码的时间处理函数
+    const { restTime, sendMsg, checkCode } = sendCodeDelay(form, userQQBindCode, target, '发送验证码失败')
+
+    const submit = async () => {
+      // 如果还未发送验证码，则直接返回
+      if (!checkCode.value) {
+        Message({ type: 'warn', text: '还未发送验证码' })
+        return
+      }
+      const { valid } = await target.value.validate()
+      if (valid) {
+        userQQBindLogin({
+          unionId: props.unionId,
+          // mobile: form.mobile,
+          // code: form.code
+          ...form
+        })
+          .then((data: any) => {
+            const { id, account, avatar, mobile, nickname, token } = data.result
+            store.commit('setUser', { id, account, avatar, mobile, nickname, token })
+            router.push(store.state.user.redirectUrl)
+            Message({ type: 'success', text: 'QQ登录成功' })
+          })
+          .catch((e) => {
+            console.log(e)
+            if (e.response && e.response.data) {
+              Message({ type: 'error', text: e.response.data.message || '绑定失败' })
+            }
+          })
+      }
+    }
+    return { nickname, avatar, form, schema, target, submit, restTime, sendMsg }
+  }
 }
 </script>
 

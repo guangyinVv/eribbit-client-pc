@@ -17,10 +17,10 @@
       </a>
     </nav>
     <div class="tab-content" v-if="hasAccount">
-      <CallbackBind />
+      <CallbackBind :unionId="unionId" />
     </div>
     <div class="tab-content" v-else>
-      <CallbackPatch />
+      <CallbackPatch :unionId="unionId" />
     </div>
   </section>
   <LoginFooter />
@@ -50,8 +50,10 @@ export default {
     const isBind = ref(true)
     const store = useStore()
     const router = useRouter()
+    const unionId = ref('')
     if (QC.Login.check()) {
       QC.Login.getMe((openId: string) => {
+        unionId.value = openId
         // openId是用户的唯一标识
         userQQLogin(openId)
           .then((data: any) => {
@@ -60,6 +62,8 @@ export default {
             store.commit('setUser', { id, account, avatar, mobile, nickname, token })
             router.push(store.state.user.redirectUrl)
             Message({ type: 'success', text: '登录成功' })
+
+            isBind.value = false
           })
           .catch((e) => {
             // 出错表示还没有跟小兔鲜进行绑定
@@ -68,7 +72,7 @@ export default {
       })
     }
 
-    return { hasAccount, isBind }
+    return { hasAccount, isBind, unionId }
   }
 }
 </script>
