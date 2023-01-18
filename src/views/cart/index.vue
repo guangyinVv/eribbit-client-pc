@@ -35,6 +35,7 @@
                   <div>
                     <p class="name ellipsis">{{ goods.name }}</p>
                     <!-- 选择规格组件 -->
+                    <CartSku @change="(newSku) => updateCartSku(goods.skuId, newSku)" :goodsId="goods.id" :skuId="goods.skuId" :attrs-text="goods.attrsText" />
                   </div>
                 </div>
               </td>
@@ -116,9 +117,10 @@ import { useStore } from 'vuex'
 import Confirm from '@/components/library/Confirm'
 import { ComponentOptionsBase, ComponentOptionsMixin, SetupContext } from 'vue'
 import { LooseRequired } from '@vue/shared'
+import CartSku from './components/cart-sku.vue'
 export default {
   name: 'XtxCartPage',
-  components: { GoodRelevant, CartNone },
+  components: { GoodRelevant, CartNone, CartSku },
   setup(): any {
     const store = useStore()
     // 单选
@@ -161,9 +163,21 @@ export default {
     }
     // 更新商品数量
     const updateCount = (skuId: string, count: number) => {
-      console.log(count)
+      store.dispatch('cart/updateCart', { skuId, count })
     }
-    return { checkOne, checkAll, deleteCart, batchDeleteCart, deleteInvalidCart, updateCount }
+    // 更新sku信息（修改规格）
+    type SkuType = {
+      skuId: string
+      price: string | number
+      oldPrice: string | number
+      inventory: string | number
+      // 颜色: 魅力粉 尺寸: L码
+      specsText: string
+    }
+    const updateCartSku = (oldSkuId: string, newSku: SkuType) => {
+      store.dispatch('cart/updateCartSku', { oldSkuId, newSku })
+    }
+    return { checkOne, checkAll, deleteCart, batchDeleteCart, deleteInvalidCart, updateCount, updateCartSku }
   }
 }
 </script>

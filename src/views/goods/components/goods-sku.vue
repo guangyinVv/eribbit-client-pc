@@ -78,8 +78,15 @@ const initDefaultSelected = (goods, skuId) => {
     // target就是要设置被选中的目标
     goods.specs.forEach((val) => {
       if (val.name === name) {
-        const target = val.values.find((newVal) => newVal.name === valueName)
-        target.selected = true
+        val.values.forEach((newVal) => {
+          if (newVal.name === valueName) {
+            newVal.selected = true
+            return
+          }
+          newVal.selected = false
+        })
+        // const target = val.values.find((newVal) => newVal.name === valueName)
+        // target.selected = true
       }
     })
   })

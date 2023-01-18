@@ -22,10 +22,6 @@ export default {
     headerVue,
     headerStickyVue,
     footerVue
-  },
-  setup() {
-    const store = useStore()
-    store.dispatch('category/getList')
   }
 }
 </script>

@@ -58,9 +58,14 @@ export default {
       }
       state.list.unshift(payload)
     },
-    // 修改购物车商品
+    /**
+     * 修改购物车商品
+     * @param {*} state
+     * @param {*} goods {skuId,...}
+     */
     updateCart (state, goods) {
       const updateGoods = state.list.find(item => item.skuId === goods.skuId)
+      if (!updateGoods) throw Error('未找到该商品')
       for (const key in goods) {
         if (goods[key] !== undefined && goods[key] !== null && goods[key] !== '') {
           updateGoods[key] = goods[key]
@@ -157,6 +162,20 @@ export default {
           ctx.getters[target].forEach(goods => {
             ctx.commit('deleteCart', goods.skuId)
           })
+          resolve()
+        }
+      })
+    },
+    updateCartSku (ctx, { oldSkuId, newSku }) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // 已登录
+        } else {
+          const oldGoods = ctx.state.list.find(item => item.skuId === oldSkuId)
+          const { skuId, price: nowPrice, specsText: attrsText, inventory: stock, oldPrice: price } = newSku
+          ctx.commit('deleteCart', oldSkuId)
+          const newGoods = { ...oldGoods, skuId, price, attrsText, stock, nowPrice }
+          ctx.commit('insertCart', newGoods)
           resolve()
         }
       })
