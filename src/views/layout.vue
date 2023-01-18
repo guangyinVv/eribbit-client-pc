@@ -23,13 +23,11 @@ export default {
     headerStickyVue,
     footerVue
   },
-  setup () {
+  setup() {
     const store = useStore()
-    store.dispatch('getList')
+    store.dispatch('category/getList')
   }
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

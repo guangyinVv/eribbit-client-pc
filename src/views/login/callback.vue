@@ -59,7 +59,7 @@ export default {
           .then((data: any) => {
             // 如果没出错，证明已经绑定，肯定就跳转去登录了
             const { id, account, avatar, mobile, nickname, token } = data.result
-            store.commit('setUser', { id, account, avatar, mobile, nickname, token })
+            store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
             router.push(store.state.user.redirectUrl)
             Message({ type: 'success', text: '登录成功' })
 

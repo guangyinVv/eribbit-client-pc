@@ -12,7 +12,6 @@
   </div>
 </template>
 <script>
-import { ref } from 'vue'
 import getPowerSet from '@/vender/power-set.js'
 export default {
   name: 'GoodsSku',

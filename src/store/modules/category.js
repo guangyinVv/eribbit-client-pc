@@ -1,7 +1,7 @@
 import { topCategory } from '@/api/constants'
 import { findAllCategory } from '@/api/category'
 export default {
-  namespace: true,
+  namespaced: true,
   state: () => {
     return {
       list: topCategory.map(item => ({ name: item }))

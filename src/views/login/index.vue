@@ -37,7 +37,7 @@ export default {
     // 存储一下回调地址
     const store = useStore()
     const route = useRoute()
-    store.commit('setRedirectUrl', route.query.redirectUrl)
+    store.commit('user/setRedirectUrl', route.query.redirectUrl)
     return { activeName }
   }
 }

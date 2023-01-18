@@ -10,6 +10,7 @@
 </template>
 <script lang="ts">
 import { useVModel } from '@vueuse/core'
+import { ref, watch } from 'vue'
 interface PropsType {
   label: string
   modelValue: number
@@ -37,11 +38,15 @@ export default {
     }
   },
   setup(props: PropsType, { emit }: { emit: (event: string, ...args: any[]) => void }) {
-    const count = useVModel(props, 'modelValue', emit)
+    // const count = useVModel(props, 'modelValue', emit)
+    const count = ref(props.modelValue)
+    watch(count, () => {
+      emit('update:modelValue', count.value)
+    })
     const changeNum = (step: number) => {
       const newVal = count.value + step
       // 先判断有没有最小值，是否大于等于最小值
-      if ((props.min || props.min === 0) && newVal < props.min) return
+      if (newVal < props.min) return
       // 判断有没有最大值，是否小于等于最大值
       if (props.max && newVal > props.max) return
       // 如果以上都不符合，则这个数可以用

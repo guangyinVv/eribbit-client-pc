@@ -4,14 +4,13 @@
     <li class="home">
       <RouterLink to="/">首页</RouterLink>
     </li>
-    <li v-for="item in list" :key="item.id" @mouseenter="open(item.id)" @mouseleave="hide(item.id)"
-      @click="hide(item.id)">
-      <router-link :to='`/category/${item.id}`'>{{ item.name }}</router-link>
+    <li v-for="item in list" :key="item.id" @mouseenter="open(item.id)" @mouseleave="hide(item.id)" @click="hide(item.id)">
+      <router-link :to="`/category/${item.id}`">{{ item.name }}</router-link>
       <div class="layer" :class="item.open ? 'show' : ''">
         <ul>
           <li v-for="sub in item.children" :key="sub.id">
-            <router-link :to='`/category/sub/${sub.id}`'>
-              <img :src="sub.picture" alt="">
+            <router-link :to="`/category/sub/${sub.id}`">
+              <img :src="sub.picture" alt="" />
               <p>{{ sub.name }}</p>
             </router-link>
           </li>
@@ -33,17 +32,17 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 export default {
-  setup () {
+  setup() {
     const store = useStore()
-    store.dispatch('getList')
-    const list = computed(() => (store.state.category.list))
+    store.dispatch('category/getList')
+    const list = computed(() => store.state.category.list)
     // 隐藏二级分类
     const hide = (id) => {
-      store.commit('hide', id)
+      store.commit('category/hide', id)
     }
     // 出现二级分类
     const open = (id) => {
-      store.commit('open', id)
+      store.commit('category/open', id)
     }
     return { list, hide, open }
   }
@@ -59,13 +58,13 @@ export default {
   position: relative;
   z-index: 999;
 
-  >li {
+  > li {
     margin-right: 40px;
     width: 38px;
     text-align: center;
     // position: relative;
 
-    >a {
+    > a {
       font-size: 16px;
       line-height: 32px;
       height: 32px;
@@ -73,7 +72,7 @@ export default {
     }
 
     &:hover {
-      >a {
+      > a {
         color: @xtxColor;
         border-bottom: 1px solid @xtxColor;
       }
@@ -99,7 +98,7 @@ export default {
       overflow: hidden;
       opacity: 0;
       box-shadow: 0 0 5px #ccc;
-      transition: all .2s .1s;
+      transition: all 0.2s 0.1s;
 
       ul {
         display: flex;

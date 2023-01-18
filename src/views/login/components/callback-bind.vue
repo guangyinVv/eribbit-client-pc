@@ -111,7 +111,7 @@ export default {
         })
           .then((data: any) => {
             const { id, account, avatar, mobile, nickname, token } = data.result
-            store.commit('setUser', { id, account, avatar, mobile, nickname, token })
+            store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
             router.push(store.state.user.redirectUrl)
             Message({ type: 'success', text: 'QQ登录成功' })
           })

@@ -16,9 +16,9 @@
         </div>
         <div class="spec">
           <GoodsName :goods="goods" />
-          <GoodsSku :goods="goods" skuId="300234338" @change="changeSku" />
+          <GoodsSku :goods="goods" @change="changeSku" />
           <XtxNumbox v-model="num" label="数量" :min="1" :max="goods.inventory" />
-          <XtxButton type="primary" style="margin-top: 20px">加入购物车</XtxButton>
+          <XtxButton @click="insertCart" type="primary" style="margin-top: 20px">加入购物车</XtxButton>
         </div>
       </div>
       <!-- 商品推荐 -->
@@ -46,6 +46,7 @@ import GoodsRelevant from './components/goods-relevant'
 import { nextTick, ref, watch, provide } from 'vue'
 import { findGoods } from '@/api/product'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 import GoodsImage from './components/goods-image.vue'
 import GoodsSales from './components/goods-sales.vue'
 import GoodsName from './components/goods-name.vue'
@@ -53,11 +54,14 @@ import GoodsSku from './components/goods-sku.vue'
 import GoodsTabs from './components/goods-tabs.vue'
 import GoodsHot from './components/goods-hot.vue'
 import GoodsWarn from './components/goods-warn.vue'
+import Message from '@/components/library/Message'
 export default {
   name: 'XtxGoodsPage',
   components: { GoodsRelevant, GoodsImage, GoodsSales, GoodsName, GoodsSku, GoodsTabs, GoodsHot, GoodsWarn },
   setup() {
     const goods = useGoods()
+    // 当前的sku对象
+    const currSku = ref(null)
     // 修改商品的现价原价库存信息,该方法由sku组件触发
     const changeSku = (sku) => {
       if (sku.skuId) {
@@ -65,13 +69,41 @@ export default {
         goods.value.oldPrice = sku.oldPrice
         goods.value.inventory = sku.inventory
       }
+      currSku.value = sku
     }
     // 购买商品的数量
     const num = ref(1)
 
     // 将goods共享出去
     provide('goods', goods)
-    return { goods, changeSku, num }
+
+    const store = useStore()
+    // 加入购物车
+    const insertCart = () => {
+      // 在加入之前要先判断是否选择了规格
+      if (currSku.value && currSku.value.skuId) {
+        store
+          .dispatch('cart/insertCart', {
+            id: goods.value.id,
+            skuId: currSku.value.skuId,
+            name: goods.value.name,
+            picture: goods.value.mainPictures[0],
+            price: currSku.value.price,
+            nowPrice: currSku.value.price,
+            count: num.value,
+            attrsText: currSku.value.specsText,
+            selected: true,
+            isEffective: true,
+            stock: currSku.value.inventory
+          })
+          .then(() => {
+            Message({ type: 'success', text: '加入购物车成功' })
+          })
+      } else {
+        Message({ text: '请选择完整规格' })
+      }
+    }
+    return { goods, changeSku, num, insertCart }
   }
 }
 // 获取商品详情

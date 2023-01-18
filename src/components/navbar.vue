@@ -35,7 +35,7 @@ export default {
     })
     // 退出登录
     const logout = () => {
-      store.commit('setUser', {})
+      store.commit('user/setUser', {})
       router.push('/login')
     }
     return { profile, logout }

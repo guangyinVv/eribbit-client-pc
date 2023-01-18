@@ -209,7 +209,7 @@ export default {
       }
       if (data) {
         const { id, account, avatar, mobile, nickname, token } = data.result
-        store.commit('setUser', { id, account, avatar, mobile, nickname, token })
+        store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
         // 进行跳转
         const redirectUrl: any = route.query.redirectUrl
         router.push(redirectUrl || '/')

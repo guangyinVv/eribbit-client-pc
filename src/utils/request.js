@@ -25,7 +25,7 @@ instance.interceptors.response.use(res => res.data, err => {
     // 1. 清空无效用户信息
     // 2. 跳转到登录页面
     // 3. 跳转需要传参（当前路由地址）给登录页码
-    store.commit('setUser', {})
+    store.commit('user/setUser', {})
     // 对url路径进行转码
     // fullPath为当前路由地址
     const fullPath = encodeURIComponent(router.currentRoute.value.fullPath)
