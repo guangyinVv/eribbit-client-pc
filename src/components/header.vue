@@ -39,10 +39,10 @@ export default {
     AppHeaderCart
   },
   setup() {
-    // const store = useStore()
-    // store.dispatch('cart/findCart').then(() => {
-    //   Message({ type: 'success', text: '更新购物车成功' })
-    // })
+    const store = useStore()
+    store.dispatch('cart/findCart').then(() => {
+      Message({ type: 'success', text: '更新购物车成功' })
+    })
   }
 }
 </script>

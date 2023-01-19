@@ -40,9 +40,13 @@ export default {
   setup(props: PropsType, { emit }: { emit: (event: string, ...args: any[]) => void }) {
     // const count = useVModel(props, 'modelValue', emit)
     const count = ref(props.modelValue)
-    watch(count, () => {
-      emit('update:modelValue', count.value)
-    })
+    // 监听props变化，如果变化就及时更改count的值
+    watch(
+      () => props.modelValue,
+      (newVal) => {
+        count.value = newVal
+      }
+    )
     const changeNum = (step: number) => {
       const newVal = count.value + step
       // 先判断有没有最小值，是否大于等于最小值
@@ -53,6 +57,7 @@ export default {
       count.value = newVal
       // 触发change事件
       emit('change', newVal)
+      emit('update:modelValue', count.value)
     }
     return { changeNum, count }
   }

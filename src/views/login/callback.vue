@@ -60,10 +60,11 @@ export default {
             // 如果没出错，证明已经绑定，肯定就跳转去登录了
             const { id, account, avatar, mobile, nickname, token } = data.result
             store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
-            router.push(store.state.user.redirectUrl)
-            Message({ type: 'success', text: '登录成功' })
-
-            isBind.value = false
+            store.dispatch('cart/mergeCart').then(() => {
+              router.push(store.state.user.redirectUrl)
+              Message({ type: 'success', text: '登录成功' })
+              isBind.value = false
+            })
           })
           .catch((e) => {
             // 出错表示还没有跟小兔鲜进行绑定

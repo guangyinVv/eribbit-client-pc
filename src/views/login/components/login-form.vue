@@ -210,10 +210,13 @@ export default {
       if (data) {
         const { id, account, avatar, mobile, nickname, token } = data.result
         store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
-        // 进行跳转
-        const redirectUrl: any = route.query.redirectUrl
-        router.push(redirectUrl || '/')
-        Message({ type: 'success', text: '登录成功' })
+        // 合并购物车
+        store.dispatch('cart/mergeCart').then(() => {
+          // 进行跳转
+          const redirectUrl: any = route.query.redirectUrl
+          router.push(redirectUrl || '/')
+          Message({ type: 'success', text: '登录成功' })
+        })
       }
     }
     return { isMsgLogin, form, schema, changeMode, target, login, sendMsg, restTime }
