@@ -84,7 +84,7 @@ export default {
   // 可同步可异步，但不能直接修改数据
   actions: {
     // 合并购物车
-    async mergeCart (ctx) {
+    async mergeCart (ctx, payload) {
       const cartList = ctx.state.list.map(goods => {
         const { skuId, selected, count } = goods
         return { skuId, selected, count }
@@ -93,22 +93,24 @@ export default {
       // 合并购物车完成后，清空本地购物车
       ctx.commit('setCart', [])
     },
+    // 全选或者反选购物车
     checkAllCart (ctx, selected) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.user.profile.token) {
           // 已登录
-          const ids = ctx.getters.validList.map(item => item.skuId)
-          checkAllCart({ selected, ids }).then(() => {
-            return findCart()
-          }).then((data) => {
-            ctx.commit('setCart', data.result)
-            resolve()
+          // 先在本地更新，然后再发送请求
+          ctx.getters.validList.forEach(goods => {
+            ctx.commit('updateCart', { skuId: goods.skuId, selected })
           })
+          const ids = ctx.getters.validList.map(item => item.skuId)
+          checkAllCart({ selected, ids })
+          resolve()
         } else {
           // 未登录
           ctx.getters.validList.forEach(goods => {
             ctx.commit('updateCart', { skuId: goods.skuId, selected })
           })
+          resolve()
         }
       })
     },
@@ -117,13 +119,10 @@ export default {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.user.profile.token) {
           // 已登录
+          ctx.commit('insertCart', payload)
           const { skuId, count } = payload
-          insertCart({ skuId, count }).then(() => {
-            return findCart()
-          }).then((data) => {
-            ctx.commit('setCart', data.result)
-            resolve()
-          })
+          insertCart({ skuId, count })
+          resolve()
         } else {
           // 未登录
           ctx.commit('insertCart', payload)
@@ -138,6 +137,7 @@ export default {
           // 已登录
           findCart().then(data => {
             ctx.commit('setCart', data.result)
+            resolve()
           })
         } else {
           const promiseArr = ctx.state.list.map(goods => {
@@ -158,12 +158,9 @@ export default {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.user.profile.token) {
           // 已登录
-          deleteCart([skuId]).then(() => {
-            return findCart()
-          }).then((data) => {
-            ctx.commit('setCart', data.result)
-            resolve()
-          })
+          ctx.commit('deleteCart', skuId)
+          deleteCart([skuId])
+          resolve()
         } else {
           // 未登录
           ctx.commit('deleteCart', skuId)
@@ -180,12 +177,9 @@ export default {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.user.profile.token) {
           // 已登录
-          updateCart(payload).then(() => {
-            return findCart()
-          }).then((data) => {
-            ctx.commit('setCart', data.result)
-            resolve()
-          })
+          ctx.commit('updateCart', payload)
+          updateCart(payload)
+          resolve()
         } else {
           ctx.commit('updateCart', payload)
           resolve()
@@ -204,12 +198,19 @@ export default {
         if (ctx.rootState.user.profile.token) {
           // 已登录
           const ids = ctx.getters[target].map(goods => goods.skuId)
-          deleteCart(ids).then(() => {
-            return findCart()
-          }).then((data) => {
-            ctx.commit('setCart', data.result)
-            resolve()
+          deleteCart(ids)
+          ctx.getters[target].forEach(goods => {
+            ctx.commit('deleteCart', goods.skuId)
           })
+          resolve()
+          // const ids = ctx.getters[target].map(item => item.skuId)
+          // deleteCart(ids).then((data) => {
+          //   console.log(data.result)
+          //   return findCart()
+          // }).then((data) => {
+          //   ctx.commit('setCart', data.result)
+          //   resolve()
+          // })
         } else {
           ctx.getters[target].forEach(goods => {
             ctx.commit('deleteCart', goods.skuId)
@@ -223,14 +224,14 @@ export default {
         if (ctx.rootState.user.profile.token) {
           // 已登录
           const oldGoods = ctx.state.list.find(item => item.skuId === oldSkuId)
+          const { skuId, price: nowPrice, specsText: attrsText, inventory: stock, oldPrice: price } = newSku
+          ctx.commit('deleteCart', oldSkuId)
+          const newGoods = { ...oldGoods, skuId, price, attrsText, stock, nowPrice }
+          ctx.commit('insertCart', newGoods)
           deleteCart([oldSkuId]).then(() => {
             return insertCart({ skuId: newSku.skuId, count: oldGoods.count })
-          }).then(() => {
-            return findCart()
-          }).then((data) => {
-            ctx.commit('setCart', data.result)
-            resolve()
           })
+          resolve()
         } else {
           const oldGoods = ctx.state.list.find(item => item.skuId === oldSkuId)
           const { skuId, price: nowPrice, specsText: attrsText, inventory: stock, oldPrice: price } = newSku

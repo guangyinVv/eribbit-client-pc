@@ -1,24 +1,5 @@
 # eribbit-client-pc
 
-## Project setup
-```
-npm install
-```
+## 待处理 bug：
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- 购物车界面更新信息不及时，修改数量时会出现延时效果，全选也不能及时更新

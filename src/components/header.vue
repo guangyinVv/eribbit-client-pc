@@ -30,19 +30,11 @@
 <script lang="ts">
 import headerNavVue from './header-nav.vue'
 import AppHeaderCart from './header-cart.vue'
-import { useStore } from 'vuex'
-import Message from './library/Message'
 export default {
   name: 'AppHeader',
   components: {
     headerNavVue,
     AppHeaderCart
-  },
-  setup() {
-    const store = useStore()
-    store.dispatch('cart/findCart').then(() => {
-      Message({ type: 'success', text: '更新购物车成功' })
-    })
   }
 }
 </script>

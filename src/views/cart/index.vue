@@ -101,7 +101,7 @@
         <div class="total">
           共 {{ $store.getters['cart/validTotal'] }} 件商品，已选择 {{ $store.getters['cart/selectedTotal'] }} 件，商品合计：
           <span class="red">¥{{ $store.getters['cart/selectedAmount'] }}</span>
-          <XtxButton type="primary">下单结算</XtxButton>
+          <XtxButton @click="checkout" type="primary">下单结算</XtxButton>
         </div>
       </div>
       <!-- 猜你喜欢 -->
@@ -118,6 +118,7 @@ import Confirm from '@/components/library/Confirm'
 import { ComponentOptionsBase, ComponentOptionsMixin, SetupContext } from 'vue'
 import { LooseRequired } from '@vue/shared'
 import CartSku from './components/cart-sku.vue'
+import router from '@/router'
 export default {
   name: 'XtxCartPage',
   components: { GoodRelevant, CartNone, CartSku },
@@ -174,10 +175,25 @@ export default {
       // 颜色: 魅力粉 尺寸: L码
       specsText: string
     }
+    // 更新购物车商品的规模
     const updateCartSku = (oldSkuId: string, newSku: SkuType) => {
       store.dispatch('cart/updateCartSku', { oldSkuId, newSku })
     }
-    return { checkOne, checkAll, deleteCart, batchDeleteCart, deleteInvalidCart, updateCount, updateCartSku }
+    // 结算
+    const checkout = () => {
+      if (store.getters['cart/selectedList'].length === 0) {
+        return Message({ type: 'warn', text: '还未选择商品' })
+      }
+      if (!store.state.user.profile.token) {
+        return Confirm({ title: '提示', text: '登录后才能结算，现在去登录吗？' })
+          .then(() => {
+            router.push('/login?redirectUrl=' + encodeURIComponent('/member'))
+          })
+          .catch((e) => {})
+      }
+      router.push('/member/checkout')
+    }
+    return { checkOne, checkAll, deleteCart, batchDeleteCart, deleteInvalidCart, updateCount, updateCartSku, checkout }
   }
 }
 </script>
