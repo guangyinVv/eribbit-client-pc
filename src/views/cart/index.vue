@@ -187,7 +187,7 @@ export default {
       if (!store.state.user.profile.token) {
         return Confirm({ title: '提示', text: '登录后才能结算，现在去登录吗？' })
           .then(() => {
-            router.push('/login?redirectUrl=' + encodeURIComponent('/member'))
+            router.push('/login?redirectUrl=' + encodeURIComponent('/member/checkout'))
           })
           .catch((e) => {})
       }

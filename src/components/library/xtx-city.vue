@@ -23,7 +23,8 @@ import axios from 'axios'
 import { onClickOutside } from '@vueuse/core'
 export default {
   name: 'XtxCity',
-  props: ['modelValue'],
+  // modelValue需要provinceCode,countyCode,cityCode三个数据
+  props: ['modelValue', 'placeholder'],
   setup(props, { emit }) {
     // 控制展开收起,默认收起
     const active = ref(false)
@@ -70,7 +71,19 @@ export default {
       clickCity.value = null
     }
     // 设置一个数组，放置选中的城市数据
-    const selectedCityList = ref([{ code: props.modelValue.provinceCode }, { code: props.modelValue.cityCode }, { code: props.modelValue.countryCode }])
+    const selectedCityList = ref([])
+    watch(
+      () => props.modelValue,
+      () => {
+        console.log(111)
+        if (props.modelValue) {
+          selectedCityList.value = [{ code: props.modelValue.provinceCode }, { code: props.modelValue.cityCode }, { code: props.modelValue.countyCode }]
+        }
+      },
+      {
+        immediate: true
+      }
+    )
     // 用来存选中城市的拼接形式
     const selectedCitys = computed(() => {
       if (selectedCityList.value.length === 3) {
@@ -79,7 +92,7 @@ export default {
         }
         return props.modelValue.fullLocation
       }
-      return '请选择配送地址'
+      return props.placeholder || '请选择配送地址'
     })
     // 数据的双向绑定
     watch(
@@ -88,8 +101,11 @@ export default {
         if (newVal.value.length === 3) {
           emit('update:modelValue', {
             provinceCode: selectedCityList.value[0].code,
+            provinceName: selectedCityList.value[0].name,
+            cityName: selectedCityList.value[1].name,
+            countryName: selectedCityList.value[2].name,
             cityCode: selectedCityList.value[1].code,
-            countryCode: selectedCityList.value[2].code,
+            countyCode: selectedCityList.value[2].code,
             fullLocation: selectedCityList.value[0].name ? `${selectedCityList.value[0].name} ${selectedCityList.value[1].name} ${selectedCityList.value[2].name}` : props.modelValue.fullLocation
           })
         }

@@ -165,13 +165,11 @@ export default {
       if (flag === isMsgLogin.value) return
       isMsgLogin.value = flag
       const tempCode = form.isAgree
-      // target.value.validate().then(() => {
       form.isAgree = tempCode
       form.account = ''
       form.password = ''
       form.mobile = ''
       form.code = ''
-      // })
     }
 
     const { restTime, sendMsg, checkCode } = sendCodeDelay(form, userMobileLoginMsg, target, '发送验证码失败')

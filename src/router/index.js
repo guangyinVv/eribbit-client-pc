@@ -8,6 +8,7 @@ import Login from '@/views/login/index.vue'
 import LoginCallback from '@/views/login/callback.vue'
 import Cart from '@/views/cart/index.vue'
 import store from '@/store'
+import Checkout from '@/views/member/pay/checkout.vue'
 
 const routes = [
   {
@@ -20,7 +21,8 @@ const routes = [
       { path: '/category/:id', component: topCategory },
       { path: '/category/sub/:id', component: subCategory },
       { path: '/product/:id', component: Goods },
-      { path: '/cart', component: Cart }
+      { path: '/cart', component: Cart },
+      { path: '/member/checkout', component: Checkout }
     ]
   },
   {
