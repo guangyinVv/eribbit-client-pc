@@ -93,9 +93,13 @@ export default {
     }
     // 添加地址成功后的回调函数
     const addAddress = inject('addAddress', Function, true)
-    const successHandler = (formData: anyObject) => {
-      console.log(addAddress)
-      addAddress(formData)
+    const modifyAddress = inject('modifyAddress', Function, true)
+    const successHandler = (formData: anyObject, modify?: boolean) => {
+      if (modify) {
+        modifyAddress(formData)
+      } else {
+        addAddress(formData)
+      }
     }
     return { showAddress, dialogVisible, selectedAddress, changeSelectedAddress, openConfirm, AddressEditVisible, openAddressEdit, successHandler }
   }

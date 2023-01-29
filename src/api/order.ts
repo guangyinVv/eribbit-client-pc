@@ -11,3 +11,7 @@ export const createOrder: () => any = () => {
 export const addAddress = (form: anyObject) => {
   return request('/member/address', 'post', form)
 }
+// 修改地址
+export const editAddress = (form: anyObject) => {
+  return request(`/member/address/${form.id}`, 'put', form)
+}

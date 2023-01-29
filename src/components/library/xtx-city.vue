@@ -72,16 +72,19 @@ export default {
     }
     // 设置一个数组，放置选中的城市数据
     const selectedCityList = ref([])
+    // setInterval(() => {
+    //   console.log(props)
+    // }, 3000)
     watch(
       () => props.modelValue,
-      () => {
-        console.log(111)
-        if (props.modelValue) {
+      (newVal) => {
+        if (props.modelValue && props.modelValue.countyCode !== selectedCityList.value[2]?.code) {
           selectedCityList.value = [{ code: props.modelValue.provinceCode }, { code: props.modelValue.cityCode }, { code: props.modelValue.countyCode }]
         }
       },
       {
-        immediate: true
+        immediate: true,
+        deep: true
       }
     )
     // 用来存选中城市的拼接形式

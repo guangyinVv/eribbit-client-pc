@@ -109,11 +109,20 @@ export default {
     const changeAddress = (id: string) => {
       addressId.value = id
     }
+    // 添加可用于切换的地址
     const addAddress = (value: anyObject) => {
       const jsonValue = JSON.stringify(value)
       order.value?.userAddresses.unshift(JSON.parse(jsonValue))
     }
     provide('addAddress', addAddress)
+    // 修改可用于切换的地址
+    const modifyAddress = (value: anyObject) => {
+      const address = order.value?.userAddresses.find((item) => item.id === value.id)
+      for (const key in value) {
+        address[key] = value[key]
+      }
+    }
+    provide('modifyAddress', modifyAddress)
     return { order, changeAddress }
   }
 }

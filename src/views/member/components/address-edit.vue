@@ -19,7 +19,8 @@
         <div class="xtx-form-item">
           <div class="label">*地区：</div>
           <div class="field">
-            <v-field :rules="schema.location" as="XtxCity" name="location" :modelValue="formData" @update:modelValue="updateAddress" placeholder="请选择所在地区" />
+            <xtxCity :modelValue="formData" @update:modelValue="updateAddress" placeholder="请选择所在地区" />
+            <!-- <v-field :rules="schema.location" as="XtxCity" name="location" v-model="addressObj" placeholder="请选择所在地区" /> -->
           </div>
           <span class="error">{{ errors.location }}</span>
         </div>
@@ -47,16 +48,16 @@
       </v-form>
     </div>
     <template v-slot:footer>
-      <XtxButton type="gray" style="margin-right: 20px">取消</XtxButton>
+      <XtxButton @click="cancel" type="gray" style="margin-right: 20px">取消</XtxButton>
       <XtxButton @click="submit" type="primary">确认</XtxButton>
     </template>
   </XtxDialog>
 </template>
 <script lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { Form as VForm, Field as VField } from 'vee-validate'
 import mySchema from '@/utils/vee-validate-schema'
-import { addAddress } from '@/api/order'
+import { addAddress, editAddress } from '@/api/order'
 import Message from '@/components/library/Message'
 type anyObject = {
   [key: string]: any
@@ -69,6 +70,55 @@ export default {
   },
   emits: ['on-success'],
   setup(props: any, { emit }: { emit: (event: 'on-success', ...args: any[]) => void }) {
+    // 表单数据
+    const formData = reactive({
+      id: '',
+      // 收货人
+      receiver: '',
+      // 手机号
+      contact: '',
+      // 详细地址
+      address: '',
+      // 邮政编码
+      postalCode: '',
+      // 地址标签
+      addressTags: '',
+      isDefault: 1,
+      provinceCode: '',
+      cityCode: '',
+      countyCode: '',
+      // 地区显示文字
+      fullLocation: ''
+    })
+    type addressType = {
+      cityCode: string
+      countyCode: string
+      provinceCode: string
+      fullLocation: string
+      [key: string]: any
+    }
+    // const addressObj: addressType = {
+    //   cityCode: '',
+    //   countyCode: '',
+    //   provinceCode: '',
+    //   fullLocation: ''
+    // }
+
+    const updateAddress = (address: addressType) => {
+      formData.cityCode = address.cityCode
+      formData.countyCode = address.countyCode
+      formData.provinceCode = address.provinceCode
+      formData.fullLocation = address.fullLocation
+    }
+    // 校验规则
+    const schema = {
+      receiver: mySchema.receiver,
+      contact: mySchema.mobile,
+      address: mySchema.address,
+      postalCode: mySchema.postalCode,
+      addressTags: mySchema.addressTags,
+      location: mySchema.location
+    }
     const dialogVisible = ref(false)
     // 打开函数
     const open = (address?: anyObject) => {
@@ -98,63 +148,38 @@ export default {
             formData[key] = 1
           }
         }
+        // 因为修改了数据，有可能出现校验失败提示，要处理一下
+        target.value.resetForm()
       }
     }
-    // 表单数据
-    const formData = reactive({
-      id: '',
-      // 收货人
-      receiver: '',
-      // 手机号
-      contact: '',
-      // 详细地址
-      address: '',
-      // 邮政编码
-      postalCode: '',
-      // 地址标签
-      addressTags: '',
-      isDefault: 1,
-      provinceCode: '',
-      cityCode: '',
-      countyCode: '',
-      // 地区显示文字
-      fullLocation: ''
-    })
-    type addressType = {
-      cityCode: string
-      countyCode: string
-      provinceCode: string
-      fullLocation: string
-      [key: string]: any
-    }
-    const updateAddress = (address: addressType) => {
-      formData.cityCode = address.cityCode
-      formData.countyCode = address.countyCode
-      formData.provinceCode = address.provinceCode
-      formData.fullLocation = address.fullLocation
-    }
-    // 校验规则
-    const schema = {
-      receiver: mySchema.receiver,
-      contact: mySchema.mobile,
-      address: mySchema.address,
-      postalCode: mySchema.postalCode,
-      addressTags: mySchema.addressTags,
-      location: mySchema.location
+    // 取消
+    const cancel = () => {
+      dialogVisible.value = false
     }
     const target: any = ref(null)
+    // 提交表单
     const submit = async () => {
       const { valid }: { valid: boolean } = await target.value?.validate()
       if (!valid) return
-      addAddress(formData).then((data: any) => {
-        Message({ type: 'success', text: '添加收货地址成功' })
-        formData.id = data.result.id
-        emit('on-success', formData)
-        // 关闭窗口
-        dialogVisible.value = false
-      })
+      // 修改
+      if (formData.id) {
+        editAddress(formData).then((data) => {
+          // 修改成功
+          Message({ text: '修改收货地址成功', type: 'success' })
+          dialogVisible.value = false
+          emit('on-success', formData, true)
+        })
+      } else {
+        addAddress(formData).then((data: any) => {
+          Message({ type: 'success', text: '添加收货地址成功' })
+          formData.id = data.result.id
+          emit('on-success', formData)
+          // 关闭窗口
+          dialogVisible.value = false
+        })
+      }
     }
-    return { dialogVisible, open, schema, formData, updateAddress, target, submit }
+    return { dialogVisible, open, schema, formData, target, submit, updateAddress, cancel }
   }
 }
 </script>
