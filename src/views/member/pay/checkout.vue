@@ -82,15 +82,17 @@
         </div>
         <!-- 提交订单 -->
         <div class="submit">
-          <XtxButton type="primary">提交订单</XtxButton>
+          <XtxButton @click="submitOrder" type="primary">提交订单</XtxButton>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-import { createOrder } from '@/api/order'
-import { provide, Ref, ref } from 'vue'
+import { createOrder, submitOrder as submitOrderFn } from '@/api/order'
+import Message from '@/components/library/Message'
+import { provide, reactive, Ref, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import CheckoutAddress from '../components/checkout-address.vue'
 type anyObject = {
   [key: string]: any
@@ -102,12 +104,29 @@ export default {
     const order: Ref<null | { goods: any[]; summary: anyObject; userAddresses: any[] }> = ref(null)
     createOrder().then((data: { result: any }) => {
       order.value = data.result
+      reqParams.goods = data.result.goods.map(({ skuId, count }: { skuId: string; count: number }) => ({ skuId, count }))
     })
 
-    // 收货地址的ID
-    const addressId: Ref<null | string> = ref(null)
+    type ReqParamsType = {
+      deliveryTimeType: number
+      payType: number
+      payChannel: number
+      buyerMessage: string
+      goods: anyObject[]
+      addressId: null | string
+    }
+    const reqParams: ReqParamsType = reactive({
+      // 收货地址的ID
+      deliveryTimeType: 1,
+      payType: 1,
+      payChannel: 1,
+      buyerMessage: '',
+      goods: [],
+      addressId: null
+    })
+    // const addressId: Ref<null | string> = ref(null)
     const changeAddress = (id: string) => {
-      addressId.value = id
+      reqParams.addressId = id
     }
     // 添加可用于切换的地址
     const addAddress = (value: anyObject) => {
@@ -123,7 +142,18 @@ export default {
       }
     }
     provide('modifyAddress', modifyAddress)
-    return { order, changeAddress }
+    const router = useRouter()
+    // 提交订单
+    const submitOrder = () => {
+      if (!reqParams.addressId) {
+        return Message({ type: 'warn', text: '您还未选择收货地址' })
+      }
+      submitOrderFn(reqParams).then((data: any) => {
+        Message({ type: 'success', text: '提交订单成功' })
+        router.push(`/member/pay?order=${data.result.id}`)
+      })
+    }
+    return { order, changeAddress, submitOrder }
   }
 }
 </script>
