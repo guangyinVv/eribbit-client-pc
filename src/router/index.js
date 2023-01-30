@@ -9,7 +9,10 @@ import LoginCallback from '@/views/login/callback.vue'
 import Cart from '@/views/cart/index.vue'
 import store from '@/store'
 import Checkout from '@/views/member/pay/checkout.vue'
-
+import Pay from '@/views/member/pay/index.vue'
+import PayResult from '@/views/member/pay/result.vue'
+import MemberLayout from '@/views/member/layout.vue'
+import MemberHome from '@/views/member/home/index.vue'
 const routes = [
   {
     // 一级路由布局容器
@@ -22,7 +25,16 @@ const routes = [
       { path: '/category/sub/:id', component: subCategory },
       { path: '/product/:id', component: Goods },
       { path: '/cart', component: Cart },
-      { path: '/member/checkout', component: Checkout }
+      { path: '/member/checkout', component: Checkout },
+      { path: '/member/pay', component: Pay },
+      { path: '/pay/callback', component: PayResult },
+      {
+        path: '/member',
+        component: MemberLayout,
+        children: [
+          { path: '/member', component: MemberHome }
+        ]
+      }
     ]
   },
   {

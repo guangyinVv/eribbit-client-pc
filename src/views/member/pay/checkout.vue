@@ -150,7 +150,7 @@ export default {
       }
       submitOrderFn(reqParams).then((data: any) => {
         Message({ type: 'success', text: '提交订单成功' })
-        router.push(`/member/pay?order=${data.result.id}`)
+        router.push(`/member/pay?orderId=${data.result.id}`)
       })
     }
     return { order, changeAddress, submitOrder }

@@ -15,6 +15,12 @@ export const addAddress = (form: anyObject) => {
 export const editAddress = (form: anyObject) => {
   return request(`/member/address/${form.id}`, 'put', form)
 }
+// 提交订单
 export const submitOrder = (params: anyObject) => {
   return request('/member/order', 'post', params)
+}
+//
+// 获取订单
+export const findOrderDetail = (orderId: string) => {
+  return request('/member/order/' + orderId, 'get')
 }
