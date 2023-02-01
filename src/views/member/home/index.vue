@@ -2,32 +2,31 @@
   <div class="member-home">
     <HomeOverview />
     <HomePanel title="我的收藏">
-      <GoodsItem v-for="i in 4" :key="i" :goods="goods" />
+      <GoodsItem v-for="item in goods" :key="item.id" :goods="item" />
     </HomePanel>
     <HomePanel title="我的足迹">
-      <GoodsItem v-for="i in 4" :key="i" :goods="goods" />
+      <GoodsItem v-for="item in goods" :key="item.id" :goods="item" />
     </HomePanel>
     <GoodsRelevant />
   </div>
 </template>
 
 <script lang="ts">
+import { findCollect } from '@/api/member'
 import GoodsItem from '@/views/category/components/goods-item.vue'
 import GoodsRelevant from '@/views/goods/components/goods-relevant.vue'
 import HomePanel from '@/views/member/home/components/home-panel.vue'
+import { Ref, ref } from 'vue'
 import HomeOverview from './components/home-overview.vue'
 
 export default {
   name: '',
   components: { HomeOverview, HomePanel, GoodsRelevant, GoodsItem },
   setup() {
-    const goods = {
-      id: '1',
-      name: '自煮火锅不排队 麦饭石不粘鸳鸯火锅',
-      picture: 'https://yanxuan-item.nosdn.127.net/fcdcb840a0f5dd754bb8fd2157579012.jpg',
-      desc: '清汤鲜香 红汤劲爽',
-      price: '159.00'
-    }
+    const goods: Ref<{ id: string }[] | null> = ref(null)
+    findCollect({ page: 1, pageSize: 4 }).then((data: any) => {
+      goods.value = data.items
+    })
     return { goods }
   }
 }

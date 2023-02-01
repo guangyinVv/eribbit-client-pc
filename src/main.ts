@@ -7,6 +7,8 @@ import library from '@/components/library'
 import 'normalize.css'
 // 自己的样式库
 import '@/assets/styles/common.less'
+// 导入mockjs
+import '@/mockjs/index'
 
 const app = createApp(App)
 app.use(library)

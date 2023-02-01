@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, RouterView } from 'vue-router'
 import home from '@/views/home/index.vue'
 import Layout from '@/views/layout.vue'
 import topCategory from '@/views/category/index.vue'
@@ -13,6 +13,9 @@ import Pay from '@/views/member/pay/index.vue'
 import PayResult from '@/views/member/pay/result.vue'
 import MemberLayout from '@/views/member/layout.vue'
 import MemberHome from '@/views/member/home/index.vue'
+import MemberOrder from '@/views/member/order/index.vue'
+import { h } from 'vue'
+import MemberOrderDetail from '@/views/member/order/detail.vue'
 const routes = [
   {
     // 一级路由布局容器
@@ -32,7 +35,16 @@ const routes = [
         path: '/member',
         component: MemberLayout,
         children: [
-          { path: '/member', component: MemberHome }
+          { path: '/member', component: MemberHome },
+          // { path: '/member/order', component: MemberOrder },
+          {
+            path: '/member/order',
+            component: RouterView,
+            children: [
+              { path: '', component: MemberOrder },
+              { path: ':id', component: MemberOrderDetail }
+            ]
+          }
         ]
       }
     ]
@@ -57,6 +69,7 @@ const router = createRouter({
     return { top: 0 }
   }
 })
+// 前置路由守卫
 router.beforeEach((to, from, next) => {
   const { profile } = store.state.user
   if (!profile && to.path.startsWith('/member')) {
